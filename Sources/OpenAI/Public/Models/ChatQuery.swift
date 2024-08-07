@@ -1,6 +1,6 @@
 //
 //  ChatQuery.swift
-//  
+//
 //
 //  Created by Sergii Kryvoblotskyi on 02/04/2023.
 //
@@ -68,6 +68,11 @@ public struct ChatQuery: Equatable, Codable, Streamable {
     /// https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format
     public var stream: Bool
 
+    /// If set, `in stream mode`, last chunk will contain usage data for the entire request. Can be obtained from  ChatStreamResult.usage.
+    /// /// Official doc:
+    /// https://cookbook.openai.com/examples/how_to_stream_completions#4-how-to-get-token-usage-data-for-streamed-chat-completion-response
+    public let streamOptions: Self.StreamOptions?
+
     public init(
         messages: [Self.ChatCompletionMessageParam],
         model: Model,
@@ -86,7 +91,8 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         topLogprobs: Int? = nil,
         topP: Double? = nil,
         user: String? = nil,
-        stream: Bool = false
+        stream: Bool = false,
+        streamOptions: Self.StreamOptions? = nil
     ) {
         self.messages = messages
         self.model = model
@@ -106,6 +112,19 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         self.topP = topP
         self.user = user
         self.stream = stream
+        self.streamOptions = streamOptions
+    }
+
+    public struct StreamOptions: Codable, Equatable {
+        public var includeUsage: Bool
+
+        public init(includeUsage: Bool) {
+            self.includeUsage = includeUsage
+        }
+
+        public enum CodingKeys: String, CodingKey {
+            case includeUsage = "include_usage"
+        }
     }
 
     public enum ChatCompletionMessageParam: Codable, Equatable {
@@ -851,5 +870,6 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         case topP = "top_p"
         case user
         case stream
+        case streamOptions = "stream_options"
     }
 }
